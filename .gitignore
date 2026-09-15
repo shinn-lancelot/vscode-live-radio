@@ -1,0 +1,40 @@
+# Dependencies and package-manager caches
+node_modules/
+.pnpm-store/
+.npm/
+.yarn/
+
+# Build output and packaged extensions
+dist/
+*.vsix
+*.tsbuildinfo
+
+# Logs and runtime output
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test and coverage output
+coverage/
+.nyc_output/
+
+# Local environment and tool caches
+.env
+.env.*
+!.env.example
+.cache/
+.eslintcache
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+.idea/
+.history/
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# Local channel data (generated or machine-specific)
+src/data/channels.json
