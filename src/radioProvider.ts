@@ -14,9 +14,9 @@ export class RadioProvider implements vscode.WebviewViewProvider {
   private lastPlayedPlaylist: 'all' | 'favorites' = 'all';
   private lastSelected: Record<'all' | 'favorites', number> = { all: 0, favorites: 0 };
   private pendingMessages: unknown[] = [];
-  private status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 1001);
-  private previousStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 1002);
-  private nextStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 1000);
+  private previousStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 1000002);
+  private status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 1000001);
+  private nextStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 1000000);
 
   constructor(private readonly context: vscode.ExtensionContext) {
     this.favoriteUrls = new Set(context.globalState.get<string[]>('radio.favoriteChannels', []));
@@ -34,7 +34,7 @@ export class RadioProvider implements vscode.WebviewViewProvider {
     this.nextStatus.command = 'radio.nextChannel';
     this.nextStatus.tooltip = 'Radio: Next Channel (Ctrl+Shift+.)';
     this.updateStatus();
-    context.subscriptions.push(this.status, this.previousStatus, this.nextStatus);
+    context.subscriptions.push(this.previousStatus, this.status, this.nextStatus);
   }
 
   resolveWebviewView(view: vscode.WebviewView): void {
