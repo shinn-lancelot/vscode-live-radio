@@ -12,7 +12,7 @@
   "categories": ["Other"],
   "main": "./dist/extension.js",
   "scripts": {
-    "compile": "tsc -p ./",
+    "compile": "tsc -p ./ && node scripts/copy-channels.js",
     "watch": "tsc -watch -p ./",
     "vscode:prepublish": "npm run compile"
   },
