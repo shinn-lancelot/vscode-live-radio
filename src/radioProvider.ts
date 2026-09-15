@@ -27,10 +27,10 @@ export class RadioProvider implements vscode.WebviewViewProvider {
     this.reloadChannels();
     this.status.command = 'radio.togglePlayback';
     this.status.tooltip = 'Radio: Play / Stop (Ctrl+Shift+Space) · Switch playlist (Ctrl+Shift+;)';
-    this.previousStatus.text = '$(chevron-left)';
+    this.previousStatus.text = '$(arrow-left)';
     this.previousStatus.command = 'radio.previousChannel';
     this.previousStatus.tooltip = 'Radio: Previous Channel (Ctrl+Shift+,)';
-    this.nextStatus.text = '$(chevron-right)';
+    this.nextStatus.text = '$(arrow-right)';
     this.nextStatus.command = 'radio.nextChannel';
     this.nextStatus.tooltip = 'Radio: Next Channel (Ctrl+Shift+.)';
     this.updateStatus();
@@ -159,11 +159,11 @@ export class RadioProvider implements vscode.WebviewViewProvider {
     const csp = `default-src 'none'; img-src ${webview.cspSource}; style-src ${webview.cspSource} 'unsafe-inline'; script-src ${webview.cspSource} 'nonce-${nonce}'; worker-src blob:; media-src https: http: blob: data:; connect-src https: http: ws: wss:;`;
     const hlsUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'node_modules', 'hls.js', 'dist', 'hls.min.js'));
     const iconSet = {
-      radio: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9.5h14v10H5z"/><path d="M8 9.5 12 4l4 5.5M8 13.5h.01M12 13.5h.01M16 13.5h.01M8 16.5h8M3 6.5a12 12 0 0 1 0-3M21 6.5a12 12 0 0 0 0-3"/></svg>',
+      radio: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5h16v9H4z"/><path d="M7 10.5 12 4l5 6.5"/><path d="M7 14h.01M10 14h.01M13 14h.01M7 17h5"/><circle cx="17" cy="16.5" r="1.5"/><path d="M2.5 7.5a13 13 0 0 1 0-3M21.5 7.5a13 13 0 0 0 0-3"/></svg>',
       play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"/></svg>',
       stop: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10H7z"/></svg>',
-      previous: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5-7 7 7 7M18 5l-7 7 7 7"/></svg>',
-      next: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 5 7 7-7 7M6 5l7 7-7 7"/></svg>',
+      previous: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14M18 5l-7 7 7 7z"/></svg>',
+      next: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 5v14M6 5l7 7-7 7z"/></svg>',
       locate: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>',
       favoriteEmpty: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.9c0 5.5-8.8 10.4-8.8 10.4S3.2 14.4 3.2 8.9A4.7 4.7 0 0 1 12 6.4a4.7 4.7 0 0 1 8.8 2.5Z"/></svg>',
       favoriteFilled: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.9c0 5.5-8.8 10.4-8.8 10.4S3.2 14.4 3.2 8.9A4.7 4.7 0 0 1 12 6.4a4.7 4.7 0 0 1 8.8 2.5Z"/></svg>'
@@ -195,4 +195,3 @@ export class RadioProvider implements vscode.WebviewViewProvider {
     </script></body></html>`;
   }
 }
-
