@@ -77,7 +77,7 @@ pnpm run compile
 
 在 VS Code 中打开项目根目录，按 `F5` 启动 Extension Development Host。运行前请在“运行和调试”面板中选择 `Run Extension`；该配置会先执行 `pnpm run compile`，再启动扩展开发主机。
 
-本地内置频道列表可放在 [`src/data/channels.json`](src/data/channels.json)。该文件是可选的，并且不会提交到 Git：如果文件存在，编译时会复制到 `dist/data/channels.json`；如果文件不存在，扩展仍可以启动，但不会显示内置频道。你仍然可以通过 `radio.channels` 添加自定义频道。
+本地内置频道列表可放在 `src/data/channels.json`。该文件是可选的，并且不会提交到 Git：如果文件存在，编译时会复制到 `dist/data/channels.json`；如果文件不存在，扩展仍可以启动，但不会显示内置频道。你仍然可以通过 `radio.channels` 添加自定义频道。
 
 ## 限制
 

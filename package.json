@@ -3,20 +3,44 @@
   "displayName": "Live Radio for VS Code",
   "description": "Listen to live Chinese radio streams without leaving VS Code.",
   "version": "0.1.0",
-  "publisher": "local",
+  "publisher": "shinn-lancelot",
   "license": "MIT",
-  "keywords": ["radio", "internet radio", "audio streaming", "mp3", "hls", "m3u8"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shinn-lancelot/vscode-live-radio.git"
+  },
+  "keywords": [
+    "radio",
+    "internet radio",
+    "audio streaming",
+    "mp3",
+    "hls",
+    "m3u8"
+  ],
   "engines": {
     "vscode": "^1.85.0"
   },
-  "categories": ["Other"],
+  "categories": [
+    "Other"
+  ],
   "main": "./dist/extension.js",
   "scripts": {
     "compile": "tsc -p ./ && node scripts/copy-channels.js",
+    "package": "pnpm run compile && pnpm exec vsce package --no-dependencies",
     "watch": "tsc -watch -p ./",
     "vscode:prepublish": "npm run compile"
   },
-  "activationEvents": ["onView:radio.player", "onCommand:radio.togglePlayback", "onCommand:radio.nextChannel", "onCommand:radio.previousChannel", "onCommand:radio.toggleFavorite", "onCommand:radio.togglePlaylist", "onCommand:radio.volumeUp", "onCommand:radio.volumeDown", "onCommand:radio.toggleMute"],
+  "activationEvents": [
+    "onView:radio.player",
+    "onCommand:radio.togglePlayback",
+    "onCommand:radio.nextChannel",
+    "onCommand:radio.previousChannel",
+    "onCommand:radio.toggleFavorite",
+    "onCommand:radio.togglePlaylist",
+    "onCommand:radio.volumeUp",
+    "onCommand:radio.volumeDown",
+    "onCommand:radio.toggleMute"
+  ],
   "contributes": {
     "viewsContainers": {
       "activitybar": [
@@ -112,11 +136,25 @@
           "description": "Custom radio channels appended to the built-in list. URL may be a direct MP3/OGG stream or an HLS M3U8 playlist.",
           "items": {
             "type": "object",
-            "required": ["name", "url"],
+            "required": [
+              "name",
+              "url"
+            ],
             "properties": {
-              "name": { "type": "string", "description": "Channel name", "minLength": 1 },
-              "url": { "type": "string", "description": "Direct MP3/OGG or HLS M3U8 stream URL", "minLength": 1 },
-              "description": { "type": "string", "description": "Optional short description" }
+              "name": {
+                "type": "string",
+                "description": "Channel name",
+                "minLength": 1
+              },
+              "url": {
+                "type": "string",
+                "description": "Direct MP3/OGG or HLS M3U8 stream URL",
+                "minLength": 1
+              },
+              "description": {
+                "type": "string",
+                "description": "Optional short description"
+              }
             }
           },
           "default": []
@@ -134,7 +172,8 @@
   },
   "devDependencies": {
     "@types/vscode": "^1.85.0",
-    "typescript": "^5.3.3",
-    "esbuild": "^0.24.0"
+    "@vscode/vsce": "^3.9.2",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.3.3"
   }
 }

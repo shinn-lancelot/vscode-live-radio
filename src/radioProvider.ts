@@ -157,7 +157,7 @@ export class RadioProvider implements vscode.WebviewViewProvider {
     const channels = JSON.stringify(this.channels).replace(/</g, '\\u003c');
     const favorites = JSON.stringify([...this.favoriteUrls]).replace(/</g, '\\u003c');
     const csp = `default-src 'none'; img-src ${webview.cspSource}; style-src ${webview.cspSource} 'unsafe-inline'; script-src ${webview.cspSource} 'nonce-${nonce}'; worker-src blob:; media-src https: http: blob: data:; connect-src https: http: ws: wss:;`;
-    const hlsUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'node_modules', 'hls.js', 'dist', 'hls.min.js'));
+    const hlsUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'dist', 'vendor', 'hls.min.js'));
     const iconSet = {
       radio: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5h16v9H4z"/><path d="M7 10.5 12 4l5 6.5"/><path d="M7 14h.01M10 14h.01M13 14h.01M7 17h5"/><circle cx="17" cy="16.5" r="1.5"/><path d="M2.5 7.5a13 13 0 0 1 0-3M21.5 7.5a13 13 0 0 0 0-3"/></svg>',
       play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"/></svg>',
