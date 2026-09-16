@@ -1,13 +1,18 @@
 {
-  "name": "vscode-live-radio",
-  "displayName": "Live Radio for VS Code",
-  "description": "Listen to live Chinese radio streams without leaving VS Code.",
-  "version": "0.1.0",
+  "name": "vscode-radio-stations",
+  "displayName": "Radio Stations",
+  "description": "Listen to radio streams without leaving VS Code.",
+  "version": "0.1.1",
   "publisher": "shinn-lancelot",
   "license": "MIT",
+  "icon": "media/icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/shinn-lancelot/vscode-live-radio.git"
+    "url": "https://github.com/shinn-lancelot/vscode-radio-stations.git"
+  },
+  "homepage": "https://github.com/shinn-lancelot/vscode-radio-stations#readme",
+  "bugs": {
+    "url": "https://github.com/shinn-lancelot/vscode-radio-stations/issues"
   },
   "keywords": [
     "radio",
@@ -27,6 +32,7 @@
   "scripts": {
     "compile": "tsc -p ./ && node scripts/copy-channels.js",
     "package": "pnpm run compile && pnpm exec vsce package --no-dependencies",
+    "publish:marketplace": "pnpm run compile && pnpm exec vsce publish --no-dependencies",
     "watch": "tsc -watch -p ./",
     "vscode:prepublish": "npm run compile"
   },
@@ -166,9 +172,6 @@
         }
       }
     }
-  },
-  "dependencies": {
-    "hls.js": "^1.5.17"
   },
   "devDependencies": {
     "@types/vscode": "^1.85.0",

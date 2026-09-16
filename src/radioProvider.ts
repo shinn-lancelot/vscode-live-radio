@@ -130,7 +130,7 @@ export class RadioProvider implements vscode.WebviewViewProvider {
       this.playing = false;
       this.updateStatus();
     } else if (message.type === 'openSettings') {
-      vscode.commands.executeCommand('workbench.action.openSettings', '@ext:local.vscode-live-radio radio.channels');
+      vscode.commands.executeCommand('workbench.action.openSettings', '@ext:local.vscode-radio-stations radio.channels');
     }
   }
 
@@ -154,10 +154,8 @@ export class RadioProvider implements vscode.WebviewViewProvider {
 
   private html(webview: vscode.Webview): string {
     const nonce = Math.random().toString(36).slice(2);
-    const channels = JSON.stringify(this.channels).replace(/</g, '\\u003c');
-    const favorites = JSON.stringify([...this.favoriteUrls]).replace(/</g, '\\u003c');
     const csp = `default-src 'none'; img-src ${webview.cspSource}; style-src ${webview.cspSource} 'unsafe-inline'; script-src ${webview.cspSource} 'nonce-${nonce}'; worker-src blob:; media-src https: http: blob: data:; connect-src https: http: ws: wss:;`;
-    const hlsUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'dist', 'vendor', 'hls.min.js'));
+    const playerUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'media', 'player.js'));
     const iconSet = {
       radio: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5h16v9H4z"/><path d="M7 10.5 12 4l5 6.5"/><path d="M7 14h.01M10 14h.01M13 14h.01M7 17h5"/><circle cx="17" cy="16.5" r="1.5"/><path d="M2.5 7.5a13 13 0 0 1 0-3M21.5 7.5a13 13 0 0 0 0-3"/></svg>',
       play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"/></svg>',
@@ -168,6 +166,13 @@ export class RadioProvider implements vscode.WebviewViewProvider {
       favoriteEmpty: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.9c0 5.5-8.8 10.4-8.8 10.4S3.2 14.4 3.2 8.9A4.7 4.7 0 0 1 12 6.4a4.7 4.7 0 0 1 8.8 2.5Z"/></svg>',
       favoriteFilled: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.9c0 5.5-8.8 10.4-8.8 10.4S3.2 14.4 3.2 8.9A4.7 4.7 0 0 1 12 6.4a4.7 4.7 0 0 1 8.8 2.5Z"/></svg>'
     };
+    const initJson = JSON.stringify({
+      channels: this.channels,
+      favoriteUrls: [...this.favoriteUrls],
+      icons: iconSet,
+      index: this.selected,
+      favoriteOnly: this.playlist === 'favorites'
+    }).replace(/</g, '\\u003c');
     return `<!doctype html><html><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="${csp}"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${styles}</style></head><body><main>
       <header><span class="logo">${iconSet.radio}</span><div><h1>Radio</h1><p>Live audio, right beside your code.</p></div></header>
       <section class="now"><div class="live-dot"></div><span id="nowLabel">Ready</span><strong id="nowName">Select a station</strong><small id="nowDescription">Internet radio</small></section>
@@ -175,23 +180,6 @@ export class RadioProvider implements vscode.WebviewViewProvider {
       <label class="volume">Volume <input id="volume" type="range" min="0" max="1" step="0.01" value="0.8"><span id="volumeValue">80%</span></label>
       <div class="station-heading"><h2>Stations</h2><div class="filters"><button id="locate" class="locate" aria-label="Locate current channel" title="Locate current channel">${iconSet.locate}</button><button id="allFilter" class="filter active">All</button><button id="favoriteFilter" class="filter">Favorites <span id="favoriteCount">0</span></button></div></div><div id="channels"></div><button id="settings" class="settings">⚙ Manage stations in Settings</button>
       <p id="hint" class="hint">Direct MP3 streams offer the best compatibility. HLS/M3U8 support depends on the station and codec.</p><audio id="audio" preload="auto"></audio>
-    </main><script nonce="${nonce}" src="${hlsUri}"></script><script nonce="${nonce}">
-      const vscode = acquireVsCodeApi(); const channels = ${channels}; const favoriteUrls = new Set(${favorites}); const icons = ${JSON.stringify(iconSet)}; let index = ${this.selected}; let hls; let hlsReady = false; let pendingPlay = false; let muted = false; let favoriteOnly = ${this.playlist === 'favorites'}; const scrollPositions = { all: 0, favorites: 0 };
-      const audio = document.getElementById('audio'), list = document.getElementById('channels'), play = document.getElementById('play'), locate = document.getElementById('locate');
-      const state = { playing: false };
-      function render(preserve=true){const playlistKey=favoriteOnly?'favorites':'all';if(preserve)scrollPositions[playlistKey]=list.scrollTop;const restoreScroll=scrollPositions[playlistKey]||0; vscode.postMessage({type:'playlist',favoriteOnly}); const c=channels[index]; document.getElementById('nowName').textContent=c?.name||'Select a station'; document.getElementById('nowDescription').textContent=c?.description||'Internet radio'; document.getElementById('nowLabel').textContent=state.playing?'ON AIR':'READY'; const visible=channels.map((x,i)=>({x,i})).filter(item=>!favoriteOnly||favoriteUrls.has(item.x.url)); list.innerHTML=visible.length?visible.map(({x,i})=>'<div class="channel-row '+(i===index?'selected':'')+'"><button class="channel" data-index="'+i+'"><span class="channel-icon">'+(i===index&&state.playing?'●':'○')+'</span><span class="channel-text"><b>'+escapeHtml(x.name)+'</b><small>'+escapeHtml(x.description||'Live station')+'</small></span></button><button class="favorite '+(favoriteUrls.has(x.url)?'active':'')+'" data-index="'+i+'" aria-label="'+(favoriteUrls.has(x.url)?'Remove from favorites':'Add to favorites')+'" title="'+(favoriteUrls.has(x.url)?'Remove from favorites':'Add to favorites')+'">'+(favoriteUrls.has(x.url)?icons.favoriteFilled:icons.favoriteEmpty)+'</button></div>').join(''):'<p class="empty">No stations yet.</p>'; list.scrollTop=restoreScroll; locate.disabled=!list.querySelector('.channel-row.selected'); document.getElementById('favoriteCount').textContent=String([...favoriteUrls].filter(url=>channels.some(x=>x.url===url)).length); document.getElementById('allFilter').classList.toggle('active',!favoriteOnly); document.getElementById('favoriteFilter').classList.toggle('active',favoriteOnly); play.innerHTML=state.playing?icons.stop:icons.play; vscode.postMessage({type:'state',playing:state.playing}); }
-      function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
-      function toggleFavorite(i){if(!channels[i])return;const next=!favoriteUrls.has(channels[i].url);if(next)favoriteUrls.add(channels[i].url);else favoriteUrls.delete(channels[i].url);vscode.postMessage({type:'favorite',index:i,favorite:next});render();}
-      function navigate(direction){const candidates=channels.map((x,i)=>({x,i})).filter(item=>!favoriteOnly||favoriteUrls.has(item.x.url));if(!candidates.length)return;const position=candidates.findIndex(item=>item.i===index);const next=candidates[(position<0?(direction>0?0:candidates.length-1):position+direction+candidates.length)%candidates.length];choose(next.i,true);}
-      function locateCurrent(){const selected=list.querySelector('.channel-row.selected');if(selected)selected.scrollIntoView({block:'center',behavior:'smooth'});}
-      function switchPlaylist(next){scrollPositions[favoriteOnly?'favorites':'all']=list.scrollTop;favoriteOnly=next;render(false);}
-      function choose(i,auto){ if(!channels[i])return; index=i; state.playing=false; pendingPlay=auto; hlsReady=false; if(hls){hls.destroy();hls=undefined;} audio.pause(); audio.removeAttribute('src'); audio.load(); const url=channels[i].url; if(/\\.m3u8(?:$|[?#])/i.test(url) && window.Hls && Hls.isSupported()){hls=new Hls({enableWorker:false});hls.on(Hls.Events.MANIFEST_PARSED,()=>{hlsReady=true;if(pendingPlay)start();});hls.on(Hls.Events.ERROR,(_,data)=>{if(data.fatal){const response=data.response||{};const detail=[data.type||'unknown',data.details||'unknown',response.code?('HTTP '+response.code):'',data.url||url].filter(Boolean).join(' · ');console.error('Radio HLS error:',data);pendingPlay=false;state.playing=false;render();vscode.postMessage({type:'error',error:'HLS failed: '+detail});}});hls.loadSource(url);hls.attachMedia(audio);}else{audio.src=url;audio.load();hlsReady=true;if(auto)start();} render(); vscode.postMessage({type:'select',index,playing:auto}); }
-      function playWhenReady(){if(!pendingPlay)return; if(audio.readyState<3){document.getElementById('nowLabel').textContent='BUFFERING';return;} pendingPlay=false; audio.play().then(()=>{state.playing=true;render();}).catch(e=>{state.playing=false;render();console.error('Radio play() failed:',e.name,e.message,e);vscode.postMessage({type:'error',error:'Playback rejected: '+(e.name||'UnknownError')+' — '+(e.message||'the browser rejected the stream')});});}
-      function start(){ if(!channels[index])return; pendingPlay=true; if(/\\.m3u8(?:$|[?#])/i.test(channels[index].url) && !hlsReady){document.getElementById('nowLabel').textContent='LOADING';return;} playWhenReady(); }
-      function stopPlayback(){pendingPlay=false;state.playing=false;if(hls){hls.destroy();hls=undefined;}audio.pause();audio.removeAttribute('src');audio.load();hlsReady=false;render();}
-      function toggle(){if(state.playing){stopPlayback();}else if(!audio.src&&!hls){choose(index,true);}else{start();}} audio.onplay=()=>{state.playing=true;render()}; audio.onpause=()=>{state.playing=false;render()}; audio.onerror=()=>{state.playing=false;render();vscode.postMessage({type:'error',error:'The stream ended or is unavailable.'})};
-      function updateVolume(){document.getElementById('volume').value=audio.volume;document.getElementById('volumeValue').textContent=muted?'Muted':Math.round(audio.volume*100)+'%';}
-      document.getElementById('play').onclick=toggle; document.getElementById('locate').onclick=locateCurrent; document.getElementById('prev').onclick=()=>navigate(-1); document.getElementById('next').onclick=()=>navigate(1); document.getElementById('volume').oninput=e=>{audio.volume=Number(e.target.value);muted=false;audio.muted=false;updateVolume()}; document.getElementById('allFilter').onclick=()=>switchPlaylist(false); document.getElementById('favoriteFilter').onclick=()=>switchPlaylist(true); list.onclick=e=>{const fav=e.target.closest('.favorite');if(fav){toggleFavorite(Number(fav.dataset.index));return}const b=e.target.closest('.channel');if(b)choose(Number(b.dataset.index),true)}; document.getElementById('settings').onclick=()=>vscode.postMessage({type:'openSettings'}); window.addEventListener('message',e=>{if(e.data.type==='toggle')toggle();if(e.data.type==='navigate')navigate(e.data.direction);if(e.data.type==='toggleFavorite')toggleFavorite(index);if(e.data.type==='togglePlaylist')switchPlaylist(!favoriteOnly);if(e.data.type==='select')choose(e.data.index,e.data.autoplay);if(e.data.type==='volume'){audio.volume=Math.max(0,Math.min(1,audio.volume+e.data.delta));muted=false;audio.muted=false;updateVolume()};if(e.data.type==='mute'){muted=!muted;audio.muted=muted;updateVolume()}}); audio.addEventListener('canplay',playWhenReady); audio.addEventListener('loadeddata',playWhenReady); audio.volume=.8; updateVolume(); render(); if(channels[index])choose(index,false);
-    </script></body></html>`;
+    </main><script nonce="${nonce}">window.__RADIO_INIT__ = ${initJson};</script><script nonce="${nonce}" src="${playerUri}"></script></body></html>`;
   }
 }
